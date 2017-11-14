@@ -143,7 +143,13 @@ function addNewProduct() {
       .prompt([{
           name: "productName",
           type: "input",
-          message: "Enter Product Name: "
+          message: "Enter Product Name: ",
+          validate: function(value) {
+            if (value.length > 0) {
+              return true;
+            }
+            return false;
+          }
         },
         {
           name: "department",
