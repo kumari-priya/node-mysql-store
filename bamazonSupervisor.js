@@ -40,13 +40,13 @@ function promptUser() {
 }
 
 function getSales() {
-  var query = "SELECT DISTINCT departments.department_id,departments.department_name,departments.over_head_costs, (SELECT SUM(product_sales) FROM products WHERE departments.department_name = products.department_name) AS total_product_sales, ((SELECT total_product_sales)-departments.over_head_costs) AS total_profit FROM departments INNER JOIN products ON departments.department_name = products.department_name";
+  var query = "SELECT DISTINCT departments.department_id,departments.department_name,departments.over_head_costs, IFNULL((SELECT SUM(product_sales) FROM products WHERE departments.department_name = products.department_name),0) AS total_product_sales, IFNULL(((SELECT total_product_sales)-departments.over_head_costs),0) AS total_profit FROM departments LEFT JOIN products ON departments.department_name = products.department_name";
   connection.query(query, function(err, res) {
     for (var i = 0; i < res.length; i++) {
       console.log(
         "Department ID: " +
         res[i].department_id +
-        "Department Name: " +
+        " || Department Name: " +
         res[i].department_name +
         " || Over Head Cost: " +
         res[i].over_head_costs +
@@ -65,7 +65,13 @@ function addDepartment() {
     .prompt([{
         name: "name",
         type: "input",
-        message: "Enter Department Name: "
+        message: "Enter Department Name: ",
+        validate: function(value) {
+          if (value.length > 0) {
+            return true;
+          }
+          return false;
+        }
       },
       {
         name: "cost",
