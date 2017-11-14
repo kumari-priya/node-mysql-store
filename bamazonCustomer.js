@@ -1,6 +1,5 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var mySqlConnection = require('./mySqlConnection.js')
 
 var data;
 
@@ -29,7 +28,7 @@ function runSearch() {
         res[i].product_name +
         " || Department: " +
         res[i].department_name +
-        " || price: " +
+        " || Price: " +
         res[i].price +
         " || Stock Quantity: " +
         res[i].stock_quantity
@@ -40,44 +39,44 @@ function runSearch() {
 }
 
 function promptUser() {
-  inquirer
-    .prompt([{
-        name: "productID",
-        type: "input",
-        message: "Enter Product ID: ",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
+    inquirer
+      .prompt([{
+          name: "productID",
+          type: "input",
+          message: "Enter Product ID: ",
+          validate: function(value) {
+            if (isNaN(value) === false) {
+              return true;
+            }
+            return false;
           }
-          return false;
-        }
-      },
-      {
-        name: "units",
-        type: "input",
-        message: "Enter Number of Units: ",
-        validate: function(value) {
-          if (isNaN(value) === false) {
-            return true;
+        },
+        {
+          name: "units",
+          type: "input",
+          message: "Enter Number of Units: ",
+          validate: function(value) {
+            if (isNaN(value) === false) {
+              return true;
+            }
+            return false;
           }
-          return false;
         }
-      }
-    ])
-    .then(function(answer) {
-      for (var i = 0; i < data.length; i++) {
-        if (data[i].item_id == answer.productID && data[i].stock_quantity >= answer.units) {
-          updateProduct(answer.productID, answer.units, data[i].price);
-        } else if (data[i].item_id == answer.productID && data[i].stock_quantity < answer.units) {
-          console.log("Insufficient quantity!\n");
+      ])
+      .then(function(answer) {
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].item_id == answer.productID && data[i].stock_quantity >= answer.units) {
+            updateProduct(answer.productID, answer.units, data[i].price);
+          } else if (data[i].item_id == answer.productID && data[i].stock_quantity < answer.units) {
+            console.log("Insufficient quantity!\n");
+          }
         }
-      }
-      runSearch();
-    });
+        runSearch();
+      });
 }
 
 function updateProduct(itemId, stockQuantity, price) {
-  var totalCost = stockQuantity * price;
+  var totalCost = (stockQuantity * price).toFixed(2);
   var query = connection.query(
     "UPDATE products SET stock_quantity=stock_quantity-?,product_sales=product_sales+? WHERE item_id=?", [stockQuantity, totalCost, itemId],
     function(err, res) {
